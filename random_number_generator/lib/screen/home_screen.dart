@@ -1,7 +1,9 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:random_number_generator/component/row_number.dart';
 import 'package:random_number_generator/constant/color.dart';
+import 'package:random_number_generator/screen/settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -11,6 +13,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  int maxNumber = 10000;
   List<int> randomNumbers = [];
 
   void randomNumberGenerate() {
@@ -18,24 +21,48 @@ class _HomeScreenState extends State<HomeScreen> {
     final Set<int> newNumbers = {};
 
     while (newNumbers.length < 3) {
-      final temp = rand.nextInt(10000);
+      final temp = rand.nextInt(maxNumber);
       newNumbers.add(temp);
     }
 
-    randomNumbers = newNumbers.toList();
+    setState(() {
+      randomNumbers = newNumbers.toList();
+    });
+  }
+
+  void onSettingsPop() async {
+    final result = await Navigator.of(context)
+        .push<int>(MaterialPageRoute(builder: (BuildContext context) {
+      return SettingsScreen(
+        maxNumber: maxNumber,
+      );
+    }));
+
+    if (result != null) {
+      setState(() {
+        maxNumber = result;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    randomNumberGenerate();
     return Scaffold(
+      backgroundColor: primaryColor,
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _Header(),
-            _Body(randomNumbers: randomNumbers),
-            _Footer(onPressed: randomNumberGenerate)
-          ],
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _Header(
+                onPressed: onSettingsPop,
+              ),
+              _Body(randomNumbers: randomNumbers),
+              _Footer(onPressed: randomNumberGenerate)
+            ],
+          ),
         ),
       ),
     );
@@ -43,7 +70,9 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 class _Header extends StatelessWidget {
-  const _Header({super.key});
+  const _Header({required this.onPressed, super.key});
+
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -56,12 +85,11 @@ class _Header extends StatelessWidget {
               color: Colors.white, fontSize: 30, fontWeight: FontWeight.w700),
         ),
         IconButton(
-          icon: const Icon(
-            Icons.settings,
-            color: redColor,
-          ),
-          onPressed: () {},
-        )
+            icon: const Icon(
+              Icons.settings,
+              color: redColor,
+            ),
+            onPressed: onPressed)
       ],
     );
   }
@@ -76,25 +104,9 @@ class _Body extends StatelessWidget {
     return Expanded(
         child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: randomNumbers.map(_rowNumbers).toList(),
+      children:
+          randomNumbers.map((number) => RowNumber(number: number)).toList(),
     ));
-  }
-
-  Row _rowNumbers(int rowNumber) {
-    return Row(
-      children: rowNumber
-          .toString()
-          .split('')
-          .map((number) => Padding(
-                padding: const EdgeInsets.only(bottom: 16.0),
-                child: Image.asset(
-                  'assets/$number.png',
-                  width: 50,
-                  height: 70,
-                ),
-              ))
-          .toList(),
-    );
   }
 }
 
