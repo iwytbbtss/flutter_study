@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:vid_player/component/custom_video_player.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -33,7 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
               textStyle: textStyle,
               onTap: _onLogoTap,
             )
-          : _BodyVideo(),
+          : CustomVideoPlayer(video: video!, onNewVideoPressed: _onLogoTap,),
     );
   }
 }
@@ -77,17 +78,6 @@ class _BodyEmpty extends StatelessWidget {
           ],
         )
       ]),
-    );
-  }
-}
-
-class _BodyVideo extends StatelessWidget {
-  const _BodyVideo({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: Text('video'),
     );
   }
 }
